@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NativeCSVReader 
+public class SqlHandler 
 {
 	public void reader(String fileName)
 	{
@@ -96,11 +96,11 @@ public class NativeCSVReader
         String PalBasicCSVFile = "pals_basic.csv";
         String PalStatCSVFile = "pal_stats.csv";
         
-        NativeCSVReader urazsReader = new NativeCSVReader();
+        SqlHandler obj = new SqlHandler();
         System.out.println("Reading the "+PalBasicCSVFile+" now");
-        urazsReader.reader(PalBasicCSVFile);
+        obj.reader(PalBasicCSVFile);
         System.out.println("Reading the "+PalStatCSVFile+" now");
-        urazsReader.reader(PalStatCSVFile);
-        urazsReader.createDatabase();
+        obj.reader(PalStatCSVFile);
+        obj.createDatabase();
     }
 }
