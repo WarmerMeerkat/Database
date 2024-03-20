@@ -39,7 +39,7 @@ public class SqlHandler
             // Populate arrays with data
             for (int i = 1; i < allRows.size(); i++) {
                 String[] row = allRows.get(i);
-                for (int j = 0; j < numColumns; j++) {
+                for (int j = 0; j < Math.min(row.length, numColumns); j++) { // Adjusted loop condition
                     dataArrays[j][i - 1] = row[j];
                 }
             }
@@ -95,12 +95,13 @@ public class SqlHandler
         // Replace "your_file.csv" with the path to your CSV file
         String PalBasicCSVFile = "pals_basic.csv";
         String PalStatCSVFile = "pal_stats.csv";
-        
+        String movieString = "movies.csv";
         SqlHandler obj = new SqlHandler();
-        System.out.println("Reading the "+PalBasicCSVFile+" now");
-        obj.reader(PalBasicCSVFile);
-        System.out.println("Reading the "+PalStatCSVFile+" now");
-        obj.reader(PalStatCSVFile);
+        //System.out.println("Reading the "+Movies+" now");
+        //obj.reader(PalBasicCSVFile);
+        //System.out.println("Reading the "+PalStatCSVFile+" now");
+        //obj.reader(PalStatCSVFile);
+        obj.reader(movieString);
         obj.createDatabase();
     }
 }
