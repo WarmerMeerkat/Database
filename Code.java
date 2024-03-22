@@ -8,7 +8,7 @@ public class Code
     private static final String DB_URL = "jdbc:mysql://localhost:3306/";
 
     
-
+    //Creating Connection with MySQLServer
     private Connection connect(String database) 
     {
         Connection conn = null;
@@ -23,24 +23,27 @@ public class Code
         return conn;
     }
 
+    //Creating the Database
     public void createDatabase(String database) 
     {
         String jdbcUrl = "jdbc:mysql://localhost:3306";
         try (Connection conn = DriverManager.getConnection(jdbcUrl);Statement stmt = conn.createStatement()) 
         {
-
+            String sqldropDatabase = "DROP DATABASE IF EXISTS " + database + ";";
             String sql = "CREATE DATABASE IF NOT EXISTS "+database;
+            stmt.execute(sqldropDatabase);
             stmt.executeUpdate(sql);
-            System.out.println("Database created successfully...");
+            System.out.println("Database for Student " +database+ " has been created...\n");
         } 
         catch (SQLException e) 
         {
             e.printStackTrace();
         }
     }
-
+    //Create Tables Step 1
     public void createWorkingTable(String database) 
     {
+        
         String sqlCreateTable = "CREATE TABLE IF NOT EXISTS MOVIES_CSV (" +
                                     "ID          INT AUTO_INCREMENT PRIMARY KEY, " +
                                     "Title       VARCHAR(255), " +
@@ -59,8 +62,9 @@ public class Code
 
         try (Connection conn = this.connect(database);Statement stmt = conn.createStatement()) 
         {
+            
             stmt.execute(sqlCreateTable);
-            System.out.println("Table created successfully...");
+            //System.out.println("Table created successfully...");
         } 
         catch (SQLException e) 
         {
@@ -68,26 +72,32 @@ public class Code
         }
     }
 
+    //Create Tables Step 2
     public void createTables(String database) 
     {
 
         // SQL statement for creating the Genres table
+        
+
         String sqlCreateGenres = "CREATE TABLE IF NOT EXISTS Genres (" +
                                  "ID        INT AUTO_INCREMENT PRIMARY KEY, " +
                                  "GenreName VARCHAR(100))";
 
         //SQL statement for creating the Actors Table
+        
         String sqlCreateActors = "CREATE TABLE IF NOT EXISTS Actors (" +
                                  "ID         INT AUTO_INCREMENT PRIMARY KEY, " +
                                  "ActorName  VARCHAR(100))";
 
         // SQL statement for creating the Languages table
+        
         String sqlCreateLanguages = "CREATE TABLE IF NOT EXISTS Languages (" +
                                     "ID           INT AUTO_INCREMENT PRIMARY KEY, " +
                                     "LanguageName VARCHAR(50))";
     
 
         // SQL statement for creating the Movies table
+        
         String sqlCreateMovies = "CREATE TABLE IF NOT EXISTS Movies (" +
                                  "ID               INT AUTO_INCREMENT PRIMARY KEY, " +
                                  "Title            VARCHAR(255), " +
@@ -100,6 +110,7 @@ public class Code
                                  "DIRECTOR         VARCHAR(100))";
 
         // SQL statement for creating the MovieGenres 
+        
         String sqlCreateMovieGenres = "CREATE TABLE IF NOT EXISTS MovieGenres (" +
                                       "ID         INT AUTO_INCREMENT PRIMARY KEY, " +
                                       "Movie_ID   INT, " +
@@ -109,6 +120,7 @@ public class Code
     
     
         // SQL statement for creating the MovieActors table
+        
         String sqlCreateMovieActors =   "CREATE TABLE IF NOT EXISTS MovieActors (" +
                                         "ID        INT AUTO_INCREMENT PRIMARY KEY, " +
                                         "Movie_ID   INT, " +
@@ -118,6 +130,7 @@ public class Code
                                         "FOREIGN KEY (Movie_ID) REFERENCES Movies(ID))";
 
         // SQL statement for creating the MovieLanguage table
+        
         String sqlCreateMovieLanguages ="CREATE TABLE IF NOT EXISTS MovieLanguages (" +
                                         "ID           INT AUTO_INCREMENT PRIMARY KEY, " +
                                         "Movie_ID     INT, " +
@@ -135,13 +148,86 @@ public class Code
             stmt.execute(sqlCreateMovieGenres);
             stmt.execute(sqlCreateMovieActors);
             stmt.execute(sqlCreateMovieLanguages);
-            
-            System.out.println("All tables created successfully...");
         } 
         catch (SQLException e) 
         {
             e.printStackTrace();
         }
+    }
+
+    public void queries(String database)
+    {
+        String query1 = "delete from Movies order by ID Asc limit 1;";
+        String query2 = "delete from Languages order by ID asc limit 1;";
+        String query3 = "SELECT a.Title AS Title, COUNT(*) AS No_Of_Languages " +
+                          "FROM Movies a, MovieLanguages b " +
+                          "WHERE a.ID = b.Movie_ID " +
+                          "GROUP BY a.title " +
+                          "HAVING COUNT(*) > 3;";
+        String query4 = "SELECT a.Title AS Title, COUNT(*) AS No_Of_Actors " +
+                          "FROM Movies a, MovieActors b " +
+                          "WHERE a.ID = b.Movie_ID " +
+                          "GROUP BY a.Title " +
+                          "HAVING COUNT(*) > 6;";
+        try (Connection conn = this.connect(database);
+        Statement stmt = conn.createStatement();) 
+        {
+            stmt.executeUpdate(query1);
+        }
+        catch (SQLException e) 
+        {
+            System.out.println("\nQuery 1 : " + e.getMessage());
+        }
+
+        try (Connection conn = this.connect(database);
+        Statement stmt = conn.createStatement();) 
+        {
+            stmt.executeUpdate(query1);
+        }
+        catch (SQLException e) 
+        {
+            System.out.println("\nQuery 2: " + e.getMessage());
+        }
+        try (Connection conn = this.connect(database);
+        Statement stmt = conn.createStatement();
+        ResultSet rs1 = stmt.executeQuery(query3)) 
+        {   
+            System.out.println("\nQuery 3 : The movies released in more than 3 languages\n" );
+            System.out.printf("%-45s %15s %n", "Title", "No of Languages");
+            while (rs1.next()) 
+            {
+                String title = rs1.getString("Title");
+                int noOfLanguages = rs1.getInt("No_Of_Languages");
+                System.out.printf("%-45s %15d %n", title, noOfLanguages);
+            }
+        }
+        catch (SQLException e) 
+        {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+
+        try (Connection conn = this.connect(database);
+        Statement stmt = conn.createStatement();
+        ResultSet rs2 = stmt.executeQuery(query4)) 
+        {
+            System.out.println("\nQuery 4 : The movies having more than 6 actors\n" );
+            System.out.printf("%-45s %15s %n", "Title", "No of Actors");
+            while (rs2.next()) 
+            {
+                String title = rs2.getString("Title");
+                int noOfActors = rs2.getInt("No_Of_Actors");
+                System.out.printf("%-45s %15d %n", title, noOfActors);
+            }
+            System.out.println("\n\n");
+
+        }
+        catch (SQLException e) 
+        {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+
+     
+
     }
     
     public void createProcedures(String database)
@@ -343,6 +429,7 @@ public class Code
         try(Connection conn = this.connect(database);Statement stmt = conn.createStatement())
         {
             stmt.executeQuery(callProcedureString);
+            System.out.println("Database for Student "+database+" has been populated...\n");
         }
         catch(SQLException e)
         {
@@ -371,7 +458,7 @@ public class Code
     
                 if (data.length != 12) 
                 {
-                    System.out.println("Skipping line " + lineNumber + ": Incorrect data format.");
+                    System.out.println("Skipping line " + lineNumber + data[0] + ": Incorrect data format.");
                     continue;
                 }
                 if (data[0].equals("Title")) 
@@ -398,11 +485,11 @@ public class Code
                 }
                 catch (NumberFormatException | SQLException e) 
                 {
-                    System.out.println("Error processing line " + lineNumber + ": " + e.getMessage());
+                    System.out.println("Error processing line " + lineNumber +  ": " + e.getMessage());
                 }
                     
             }
-            System.out.println("Insertion complete.");
+            //System.out.println("Insertion complete.");
         } 
         catch (IOException e) 
         {
@@ -418,15 +505,16 @@ public class Code
     public static void main(String[] args) 
     {
         Code obj = new Code();
-        String[] databases = {"database1"};
-        for(String database: databases)
+        String[] databases = {"38540681","38776405","38863006"};
+        for(String database : databases)
         {
-            obj.createDatabase(database);
-            obj.createWorkingTable(database);
-            obj.createTables(database);
-            obj.createProcedures(database);
-            obj.reader("movies.csv",database);
-            obj.callProcedure(database);
+            obj.createDatabase("DM"+database);
+            obj.createWorkingTable("DM"+database);
+            obj.createTables("DM"+database);
+            obj.createProcedures("DM"+database);
+            obj.reader(database+".csv","DM"+database);
+            obj.callProcedure("DM"+database);
+            obj.queries("DM"+database);
         }
         
     }
